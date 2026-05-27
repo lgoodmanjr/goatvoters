@@ -1,0 +1,90 @@
+import { useState, useEffect, useCallback } from 'react'
+import { supabase } from '../supabaseClient'
+import { categories, eloUpdate, getRandomPair } from '../data'
+
+function initScores() {
+  const scores = {}
+  categories.forEach(cat => {
+    scores[cat.id] = cat.contestants.map(() => 1000)
+  })
+  return scores
+}
+
+function initVoteCounts() {
+  const counts = {}
+  categories.forEach(cat => { counts[cat.id] = 0 })
+  return counts
+}
+
+export function useVoting() {
+  const [scores, setScores] = useState(initScores)
+  const [voteCounts, setVoteCounts] = useState(initVoteCounts)
+  const [activeCatIndex, setActiveCatIndex] = useState(0)
+  const [pair, setPair] = useState(() => getRandomPair(categories[0].contestants.length))
+  const [voted, setVoted] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const activeCat = categories[activeCatIndex]
+
+  useEffect(() => {
+    async function loadScores() {
+      try {
+        const { data, error } = await supabase
+          .from('contestants')
+          .select('id, elo_score, category_id')
+
+        if (error) throw error
+
+        if (data && data.length > 0) {
+          const newScores = initScores()
+          data.forEach(row => {
+            const cat = categories.find(c => c.id === row.category_id)
+            if (!cat) return
+            const idx = cat.contestants.findIndex(c => c.id === row.id)
+            if (idx !== -1) newScores[row.category_id][idx] = row.elo_score
+          })
+          setScores(newScores)
+        }
+
+        const { data: votesData } = await supabase
+          .from('votes')
+          .select('category_id')
+
+        if (votesData) {
+          const counts = initVoteCounts()
+          votesData.forEach(v => {
+            if (counts[v.category_id] !== undefined) counts[v.category_id]++
+          })
+          setVoteCounts(counts)
+        }
+      } catch (err) {
+        console.log('Running in local mode (Supabase not configured)')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadScores()
+  }, [])
+
+  const switchCategory = useCallback((index) => {
+    setActiveCatIndex(index)
+    setPair(getRandomPair(categories[index].contestants.length))
+    setVoted(false)
+    setSelectedIndex(null)
+  }, [])
+
+  const vote = useCallback(async (winnerLocalIdx) => {
+    if (voted) return
+    const cat = activeCat
+    const [a, b] = pair
+    const loserLocalIdx = winnerLocalIdx === a ? b : a
+
+    const newScores = { ...scores }
+    newScores[cat.id] = eloUpdate(scores[cat.id], winnerLocalIdx, loserLocalIdx)
+    setScores(newScores)
+    setVoteCounts(prev => ({ ...prev, [cat.id]: prev[cat.id] + 1 }))
+    setVoted(true)
+    setSelectedIndex(winnerLocalIdx)
+
+    try {
