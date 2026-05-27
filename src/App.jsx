@@ -4,7 +4,7 @@ import CategoryNav from './components/CategoryNav'
 import VotingCard from './components/VotingCard'
 import Leaderboard from './components/Leaderboard'
 import Divider from './components/Divider'
-import { useVoting } from './hooks/useVoting'
+import { useVoting } from './hooks/useVoting.jsx'
 import { categories } from './data'
 
 export default function App() {
