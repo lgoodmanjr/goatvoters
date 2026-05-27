@@ -14,14 +14,8 @@ function ContestantCard({ contestant, state, onClick }) {
         minHeight: '180px',
         padding: '1.5rem 1rem',
         borderRadius: 'var(--radius)',
-        border: isWinner
-          ? '2px solid var(--orange)'
-          : '1px solid var(--border)',
-        background: isWinner
-          ? 'rgba(216, 90, 48, 0.12)'
-          : isLoser
-          ? 'var(--surface)'
-          : 'var(--surface2)',
+        border: isWinner ? '2px solid var(--orange)' : '1px solid var(--border)',
+        background: isWinner ? 'rgba(216, 90, 48, 0.12)' : isLoser ? 'var(--surface)' : 'var(--surface2)',
         cursor: isNeutral ? 'pointer' : 'default',
         display: 'flex',
         flexDirection: 'column',
@@ -79,14 +73,13 @@ export default function VotingCard({ activeCat, pair, voted, selectedIndex, vote
   const [a, b] = pair
   const cA = activeCat.contestants[a]
   const cB = activeCat.contestants[b]
-
   const stateA = !voted ? 'neutral' : selectedIndex === a ? 'winner' : 'loser'
   const stateB = !voted ? 'neutral' : selectedIndex === b ? 'winner' : 'loser'
 
   function handleShare() {
     const winner = selectedIndex === a ? cA : cB
     const loser = selectedIndex === a ? cB : cA
-    const text = `I just voted ${winner.name} over ${loser.name} on GOATVoters. Cast your vote! 🐐 goatvoters.com`
+    const text = `I just voted ${winner.name} over ${loser.name} on GOATVoters. Cast your vote! goatvoters.com`
     if (navigator.share) {
       navigator.share({ title: 'GOATVoters', text, url: 'https://goatvoters.com' })
     } else {
@@ -152,4 +145,43 @@ export default function VotingCard({ activeCat, pair, voted, selectedIndex, vote
                 borderRadius: 'var(--radius-pill)',
                 border: '1px solid var(--border)',
                 background: 'var(--surface)',
-                
+                color: 'var(--text-secondary)',
+                fontSize: '13px',
+                fontWeight: 500,
+              }}
+            >
+              Share
+            </button>
+            <button
+              onClick={onNext}
+              style={{
+                padding: '7px 18px',
+                borderRadius: 'var(--radius-pill)',
+                border: 'none',
+                background: 'var(--orange)',
+                color: '#fff',
+                fontSize: '13px',
+                fontWeight: 600,
+              }}
+            >
+              Next
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onSkip}
+            style={{
+              fontSize: '13px',
+              color: 'var(--text-tertiary)',
+              background: 'none',
+              border: 'none',
+              padding: '4px 0',
+            }}
+          >
+            Skip this matchup
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
