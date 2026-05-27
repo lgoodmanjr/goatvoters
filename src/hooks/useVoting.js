@@ -24,7 +24,6 @@ export function useVoting() {
   const [voted, setVoted] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [loading, setLoading] = useState(true)
-
   const activeCat = categories[activeCatIndex]
 
   useEffect(() => {
@@ -33,9 +32,7 @@ export function useVoting() {
         const { data, error } = await supabase
           .from('contestants')
           .select('id, elo_score, category_id')
-
         if (error) throw error
-
         if (data && data.length > 0) {
           const newScores = initScores()
           data.forEach(row => {
@@ -46,11 +43,9 @@ export function useVoting() {
           })
           setScores(newScores)
         }
-
         const { data: votesData } = await supabase
           .from('votes')
           .select('category_id')
-
         if (votesData) {
           const counts = initVoteCounts()
           votesData.forEach(v => {
@@ -59,7 +54,7 @@ export function useVoting() {
           setVoteCounts(counts)
         }
       } catch (err) {
-        console.log('Running in local mode (Supabase not configured)')
+        console.log('Running in local mode')
       } finally {
         setLoading(false)
       }
@@ -79,12 +74,63 @@ export function useVoting() {
     const cat = activeCat
     const [a, b] = pair
     const loserLocalIdx = winnerLocalIdx === a ? b : a
-
     const newScores = { ...scores }
     newScores[cat.id] = eloUpdate(scores[cat.id], winnerLocalIdx, loserLocalIdx)
     setScores(newScores)
     setVoteCounts(prev => ({ ...prev, [cat.id]: prev[cat.id] + 1 }))
     setVoted(true)
     setSelectedIndex(winnerLocalIdx)
-
     try {
+      const winner = cat.contestants[winnerLocalIdx]
+      const loser = cat.contestants[loserLocalIdx]
+      await Promise.all([
+        supabase.from('contestants').upsert({
+          id: winner.id,
+          name: winner.name,
+          category_id: cat.id,
+          elo_score: newScores[cat.id][winnerLocalIdx]
+        }),
+        supabase.from('contestants').upsert({
+          id: loser.id,
+          name: loser.name,
+          category_id: cat.id,
+          elo_score: newScores[cat.id][loserLocalIdx]
+        }),
+        supabase.from('votes').insert({
+          category_id: cat.id,
+          winner_id: winner.id,
+          loser_id: loser.id
+        })
+      ])
+    } catch (err) {
+      console.log('Local mode')
+    }
+  }, [voted, activeCat, pair, scores])
+
+  const nextPair = useCallback(() => {
+    setPair(getRandomPair(activeCat.contestants.length))
+    setVoted(false)
+    setSelectedIndex(null)
+  }, [activeCat])
+
+  const getRankings = useCallback((catIndex) => {
+    const cat = categories[catIndex]
+    return cat.contestants
+      .map((c, i) => ({ ...c, score: scores[cat.id][i], index: i }))
+      .sort((a, b) => b.score - a.score)
+  }, [scores])
+
+  return {
+    activeCat,
+    activeCatIndex,
+    pair,
+    voted,
+    selectedIndex,
+    loading,
+    voteCounts,
+    switchCategory,
+    vote,
+    nextPair,
+    getRankings,
+  }
+}
