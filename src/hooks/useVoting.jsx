@@ -96,7 +96,7 @@ useEffect(() => {
       setVoted(false)
       setSelectedIndex(null)
       setPair(getRandomPair(cat.contestants.length))
-    }, 1600)
+    }, 950)
 
     try {
       const winner = cat.contestants[winnerLocalIdx]
