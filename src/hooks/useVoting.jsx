@@ -117,9 +117,9 @@ useEffect(() => {
   }, [voted, activeCat, pair, scores])
 
   const nextPair = useCallback(() => {
-    setPair(getRandomPair(activeCat.contestants.length))
     setVoted(false)
     setSelectedIndex(null)
+    setPair(getRandomPair(activeCat.contestants.length))
   }, [activeCat])
 
   const getRankings = useCallback((catIndex) => {
