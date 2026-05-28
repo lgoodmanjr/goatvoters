@@ -70,7 +70,7 @@ const rankings = getRankings(activeCatIndex)
       display: 'flex',
       flexDirection: 'column',
     }}>
-      <Header onHome={() => switchCategory(0)} />
+      <Header onHome={() => switchCategory(0)} catId={activeCat.id} lastVote={lastVote} />
       <CategoryNav
         activeCatIndex={activeCatIndex}
         onSwitch={switchCategory}
