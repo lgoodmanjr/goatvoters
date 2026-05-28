@@ -22,11 +22,15 @@ export default function App() {
     getRankings,
   } = useVoting()
 
-  const rankings = getRankings(activeCatIndex)
+const rankings = getRankings(activeCatIndex)
+  const [lastVote, setLastVote] = React.useState(null)
 
-function handleVote(idx) {
+  function handleVote(idx) {
+    const [a, b] = pair
+    const winner = activeCat.contestants[idx]
+    const loser = activeCat.contestants[idx === a ? b : a]
+    setLastVote({ winner: winner.name, loser: loser.name })
     vote(idx)
-    setTimeout(nextPair, 600)
   }
 
   if (loading) {
@@ -86,6 +90,8 @@ function handleVote(idx) {
         <Leaderboard
           rankings={rankings}
           catLabel={activeCat.label}
+          catId={activeCat.id}
+          lastVote={lastVote}
         />
       </div>
     </div>
