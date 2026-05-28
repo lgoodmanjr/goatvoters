@@ -1,13 +1,13 @@
 import React from 'react'
 
-export default function Leaderboard({ rankings, catLabel }) {
+export default function Leaderboard({ rankings, catLabel, catId, lastVote }) {
   const maxScore = rankings[0]?.score || 1000
   const minScore = rankings[rankings.length - 1]?.score || 1000
   const range = maxScore - minScore || 1
 
   return (
     <div style={{ padding: '0 1.25rem 2rem' }}>
-      <div style={{
+       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -21,14 +21,41 @@ export default function Leaderboard({ rankings, catLabel }) {
         }}>
           RANKINGS
         </div>
-        <div style={{
-          fontSize: '12px',
-          color: 'var(--text-tertiary)',
-          letterSpacing: '0.05em',
-        }}>
-          {rankings.length} contestants
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            fontSize: '12px',
+            color: 'var(--text-tertiary)',
+            letterSpacing: '0.05em',
+          }}>
+            {rankings.length} contestants
+          </div>
+          {lastVote && (
+            <button
+              onClick={() => {
+                const categoryUrl = `https://goatvoters.com/#${catId}`
+                const text = `I just voted ${lastVote.winner} over ${lastVote.loser} on GOATVoters. Do you agree? 🐐`
+                if (navigator.share) {
+                  navigator.share({ title: 'GOATVoters', text, url: categoryUrl })
+                } else {
+                  navigator.clipboard.writeText(`${text} ${categoryUrl}`)
+                    .then(() => alert('Copied to clipboard!'))
+                }
+              }}
+              style={{
+                padding: '5px 10px',
+                borderRadius: 'var(--radius-pill)',
+                border: '1px solid var(--border)',
+                background: 'var(--surface)',
+                color: 'var(--text-secondary)',
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              Share 🔗
+            </button>
+          )}
         </div>
-      </div>
+      </div> 
       <div style={{
         background: 'var(--surface)',
         borderRadius: 'var(--radius)',
