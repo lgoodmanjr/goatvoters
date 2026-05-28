@@ -25,9 +25,20 @@ function initVoteCounts() {
   return counts
 }
 
+function initWLRecords() {
+  const records = {}
+  categories.forEach(cat => {
+    cat.contestants.forEach(c => {
+      records[c.id] = { wins: 0, losses: 0 }
+    })
+  })
+  return records
+}
+
 export function useVoting() {
   const [scores, setScores] = useState(initScores)
   const [voteCounts, setVoteCounts] = useState(initVoteCounts)
+  const [wlRecords, setWLRecords] = useState(initWLRecords)
   const [activeCatIndex, setActiveCatIndex] = useState(getInitialCatIndex)
   const [pair, setPair] = useState(() => getRandomPair(categories[getInitialCatIndex()].contestants.length))
   const [voted, setVoted] = useState(false)
@@ -35,7 +46,8 @@ export function useVoting() {
   const [loading, setLoading] = useState(true)
   const [lastVote, setLastVote] = useState(null)
   const activeCat = categories[activeCatIndex]
-useEffect(() => {
+
+  useEffect(() => {
     async function loadScores() {
       try {
         const { data, error } = await supabase
@@ -52,15 +64,20 @@ useEffect(() => {
           })
           setScores(newScores)
         }
+
         const { data: votesData } = await supabase
           .from('votes')
-          .select('category_id')
+          .select('category_id, winner_id, loser_id')
         if (votesData) {
           const counts = initVoteCounts()
+          const records = initWLRecords()
           votesData.forEach(v => {
             if (counts[v.category_id] !== undefined) counts[v.category_id]++
+            if (records[v.winner_id] !== undefined) records[v.winner_id].wins++
+            if (records[v.loser_id] !== undefined) records[v.loser_id].losses++
           })
           setVoteCounts(counts)
+          setWLRecords(records)
         }
       } catch (err) {
         console.log('Running in local mode')
@@ -92,6 +109,15 @@ useEffect(() => {
     setLastVote({ winner: cat.contestants[winnerLocalIdx].name, loser: cat.contestants[loserLocalIdx].name })
     setVoted(true)
 
+    // Optimistically update W/L records
+    const winnerId = cat.contestants[winnerLocalIdx].id
+    const loserId = cat.contestants[loserLocalIdx].id
+    setWLRecords(prev => ({
+      ...prev,
+      [winnerId]: { wins: (prev[winnerId]?.wins || 0) + 1, losses: prev[winnerId]?.losses || 0 },
+      [loserId]: { wins: prev[loserId]?.wins || 0, losses: (prev[loserId]?.losses || 0) + 1 },
+    }))
+
     setTimeout(() => {
       setVoted(false)
       setSelectedIndex(null)
@@ -121,7 +147,7 @@ useEffect(() => {
         })
       ])
     } catch (err) {
-      console.log('Local mode')
+      console.log('Vote saved locally only')
     }
   }, [voted, activeCat, pair, scores])
 
@@ -134,7 +160,7 @@ useEffect(() => {
   const getRankings = useCallback((catIndex) => {
     const cat = categories[catIndex]
     return cat.contestants
-      .map((c, i) => ({ ...c, score: scores[cat.id][i], index: i }))
+      .map((c, i) => ({ ...c, score: scores[cat.id][i] }))
       .sort((a, b) => b.score - a.score)
   }, [scores])
 
@@ -147,6 +173,7 @@ useEffect(() => {
     lastVote,
     loading,
     voteCounts,
+    wlRecords,
     switchCategory,
     vote,
     nextPair,
