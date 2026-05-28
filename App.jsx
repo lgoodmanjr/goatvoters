@@ -87,7 +87,7 @@ export default function App() {
           voted={voted}
           selectedIndex={selectedIndex}
           voteCount={voteCounts[activeCat.id]}
-          onVote={vote}
+          onVote={(idx) => { vote(idx); setTimeout(() => nextPair(), 600); }}
           onNext={nextPair}
           onSkip={nextPair}
         />
