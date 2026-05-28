@@ -9,9 +9,17 @@ export default function Header({ onHome, catId, lastVote }) {
 
   function handleShare() {
     const categoryUrl = `https://goatvoters.com/#${catId}`
+    const categoryPhrases = {
+      disney: 'greatest Disney World ride',
+      rappers: 'greatest rapper of all time',
+      albums: 'greatest album of all time',
+      nba: 'greatest NBA player of all time',
+      presidents: 'greatest US president of all time',
+    }
+    const topic = categoryPhrases[catId] || 'greatest of all time'
     const text = lastVote
-      ? `I just voted ${lastVote.winner} over ${lastVote.loser} on GOATVoters. Do you agree? 🐐`
-      : `Who's the GOAT? Come vote and see the live rankings! 🐐`
+      ? `I just voted ${lastVote.winner} over ${lastVote.loser} for ${topic} on GOATVoters. Do you agree? 🐐`
+      : `Who's the ${topic}? Come vote and see the live rankings on GOATVoters! 🐐`
     if (navigator.share) {
       navigator.share({ title: 'GOATVoters', text, url: categoryUrl })
     } else {
