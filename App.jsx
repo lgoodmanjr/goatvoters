@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Header from './components/Header'
 import CategoryNav from './components/CategoryNav'
 import VotingCard from './components/VotingCard'
@@ -24,19 +24,10 @@ export default function App() {
 
   const rankings = getRankings(activeCatIndex)
 
-  // Deep linking — read category from URL hash on load
-  useEffect(() => {
-    const hash = window.location.hash.replace('#', '').toLowerCase()
-    if (hash) {
-      const index = categories.findIndex(c => c.id === hash)
-      if (index !== -1) switchCategory(index)
-    }
-  }, [])
-
-  // Update URL hash when category changes
-  useEffect(() => {
-    window.location.hash = activeCat.id
-  }, [activeCat.id])
+  function handleVote(idx) {
+    vote(idx)
+    setTimeout(() => nextPair(), 800)
+  }
 
   if (loading) {
     return (
@@ -75,7 +66,7 @@ export default function App() {
       display: 'flex',
       flexDirection: 'column',
     }}>
-      <Header />
+      <Header onHome={() => switchCategory(0)} />
       <CategoryNav
         activeCatIndex={activeCatIndex}
         onSwitch={switchCategory}
@@ -87,7 +78,7 @@ export default function App() {
           voted={voted}
           selectedIndex={selectedIndex}
           voteCount={voteCounts[activeCat.id]}
-          onVote={(idx) => { vote(idx); setTimeout(() => nextPair(), 600); }}
+          onVote={handleVote}
           onNext={nextPair}
           onSkip={nextPair}
         />
