@@ -79,11 +79,17 @@ export default function VotingCard({ activeCat, pair, voted, selectedIndex, vote
   function handleShare() {
     const winner = selectedIndex === a ? cA : cB
     const loser = selectedIndex === a ? cB : cA
-    const text = `I just voted ${winner.name} over ${loser.name} on GOATVoters. Cast your vote! goatvoters.com`
+    const categoryUrl = `https://goatvoters.com/#${activeCat.id}`
+    const text = `I just voted ${winner.name} over ${loser.name} for ${activeCat.title}. Do you agree? 🐐`
     if (navigator.share) {
-      navigator.share({ title: 'GOATVoters', text, url: 'https://goatvoters.com' })
+      navigator.share({
+        title: 'GOATVoters',
+        text,
+        url: categoryUrl
+      })
     } else {
-      navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'))
+      navigator.clipboard.writeText(`${text} ${categoryUrl}`)
+        .then(() => alert('Copied to clipboard! Paste it anywhere to share.'))
     }
   }
 
@@ -150,7 +156,8 @@ export default function VotingCard({ activeCat, pair, voted, selectedIndex, vote
                 fontWeight: 500,
               }}
             >
-              Share
+             >
+              Share 🔗
             </button>
             <button
               onClick={onNext}
