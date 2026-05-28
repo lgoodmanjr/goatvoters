@@ -1,41 +1,102 @@
-import React from 'react'
-import { categories } from '../data'
+import React, { useEffect } from 'react'
+import Header from './components/Header'
+import CategoryNav from './components/CategoryNav'
+import VotingCard from './components/VotingCard'
+import Leaderboard from './components/Leaderboard'
+import Divider from './components/Divider'
+import { useVoting } from './hooks/useVoting.jsx'
+import { categories } from './data'
 
-export default function CategoryNav({ activeCatIndex, onSwitch }) {
+export default function App() {
+  const {
+    activeCat,
+    activeCatIndex,
+    pair,
+    voted,
+    selectedIndex,
+    loading,
+    voteCounts,
+    switchCategory,
+    vote,
+    nextPair,
+    getRankings,
+  } = useVoting()
+
+  const rankings = getRankings(activeCatIndex)
+
+  // Deep linking — read category from URL hash on load
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '').toLowerCase()
+    if (hash) {
+      const index = categories.findIndex(c => c.id === hash)
+      if (index !== -1) switchCategory(index)
+    }
+  }, [])
+
+  // Update URL hash when category changes
+  useEffect(() => {
+    window.location.hash = activeCat.id
+  }, [activeCat.id])
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '16px',
+      }}>
+        <div style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '36px',
+          letterSpacing: '4px',
+        }}>
+          <span style={{ color: 'var(--orange)' }}>GOAT</span>
+          <span style={{ color: 'var(--text)' }}>VOTERS</span>
+        </div>
+        <div style={{
+          fontSize: '13px',
+          color: 'var(--text-tertiary)',
+          animation: 'pulse 1.5s ease infinite',
+        }}>
+          Loading rankings...
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <nav style={{
+    <div style={{
+      maxWidth: '520px',
+      margin: '0 auto',
+      minHeight: '100dvh',
       display: 'flex',
-      gap: '8px',
-      padding: '1rem 1.25rem',
-      overflowX: 'auto',
-      scrollbarWidth: 'none',
-      WebkitOverflowScrolling: 'touch',
+      flexDirection: 'column',
     }}>
-      {categories.map((cat, i) => {
-        const active = i === activeCatIndex
-        return (
-          <button
-            key={cat.id}
-            onClick={() => onSwitch(i)}
-            style={{
-              flexShrink: 0,
-              padding: '6px 14px',
-              borderRadius: 'var(--radius-pill)',
-              border: active ? 'none' : '1px solid var(--border)',
-              background: active ? 'var(--orange)' : 'var(--surface)',
-              color: active ? '#fff' : 'var(--text-secondary)',
-              fontSize: '13px',
-              fontWeight: active ? 600 : 400,
-              fontFamily: 'var(--font-body)',
-              transition: 'all 0.15s ease',
-              cursor: 'pointer',
-              letterSpacing: active ? '0.01em' : 0,
-            }}
-          >
-            {cat.emoji} {cat.label}
-          </button>
-        )
-      })}
-    </nav>
+      <Header />
+      <CategoryNav
+        activeCatIndex={activeCatIndex}
+        onSwitch={switchCategory}
+      />
+      <div style={{ animation: 'fadeUp 0.3s ease both' }} key={activeCat.id}>
+        <VotingCard
+          activeCat={activeCat}
+          pair={pair}
+          voted={voted}
+          selectedIndex={selectedIndex}
+          voteCount={voteCounts[activeCat.id]}
+          onVote={vote}
+          onNext={nextPair}
+          onSkip={nextPair}
+        />
+        <Divider />
+        <Leaderboard
+          rankings={rankings}
+          catLabel={activeCat.label}
+        />
+      </div>
+    </div>
   )
 }
