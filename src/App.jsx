@@ -14,6 +14,7 @@ export default function App() {
     pair,
     voted,
     selectedIndex,
+    lastVote,
     loading,
     voteCounts,
     switchCategory,
