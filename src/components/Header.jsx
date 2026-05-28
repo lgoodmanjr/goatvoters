@@ -46,7 +46,7 @@ export default function Header({ onHome, catId, lastVote }) {
       zIndex: 100,
     }}>
       <button
-        onClick={onHome}
+        onClick={handleRefresh}
         style={{
           display: 'flex',
           alignItems: 'baseline',
