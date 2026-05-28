@@ -33,6 +33,7 @@ export function useVoting() {
   const [voted, setVoted] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [lastVote, setLastVote] = useState(null)
   const activeCat = categories[activeCatIndex]
 useEffect(() => {
     async function loadScores() {
@@ -88,6 +89,7 @@ useEffect(() => {
     setScores(newScores)
     setVoteCounts(prev => ({ ...prev, [cat.id]: prev[cat.id] + 1 }))
     setSelectedIndex(winnerLocalIdx)
+    setLastVote({ winner: cat.contestants[winnerLocalIdx].name, loser: cat.contestants[loserLocalIdx].name })
     setVoted(true)
 
     setTimeout(() => {
@@ -142,6 +144,7 @@ useEffect(() => {
     pair,
     voted,
     selectedIndex,
+    lastVote,
     loading,
     voteCounts,
     switchCategory,
