@@ -68,30 +68,12 @@ function ContestantCard({ contestant, state, onClick }) {
     </button>
   )
 }
-
-export default function VotingCard({ activeCat, pair, voted, selectedIndex, voteCount, onVote, onNext, onSkip }) {
+export default function VotingCard({ activeCat, pair, voted, selectedIndex, voteCount, onVote, onSkip }) {
   const [a, b] = pair
   const cA = activeCat.contestants[a]
   const cB = activeCat.contestants[b]
   const stateA = !voted ? 'neutral' : selectedIndex === a ? 'winner' : 'loser'
   const stateB = !voted ? 'neutral' : selectedIndex === b ? 'winner' : 'loser'
-
-  function handleShare() {
-    const winner = selectedIndex === a ? cA : cB
-    const loser = selectedIndex === a ? cB : cA
-    const categoryUrl = `https://goatvoters.com/#${activeCat.id}`
-    const text = `I just voted ${winner.name} over ${loser.name} for ${activeCat.title}. Do you agree? 🐐`
-    if (navigator.share) {
-      navigator.share({
-        title: 'GOATVoters',
-        text,
-        url: categoryUrl
-      })
-    } else {
-      navigator.clipboard.writeText(`${text} ${categoryUrl}`)
-        .then(() => alert('Copied to clipboard! Paste it anywhere to share.'))
-    }
-  }
 
   return (
     <div style={{ padding: '0 1.25rem' }}>
@@ -142,39 +124,7 @@ export default function VotingCard({ activeCat, pair, voted, selectedIndex, vote
         <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
           {voteCount.toLocaleString()} vote{voteCount !== 1 ? 's' : ''} cast
         </span>
-        {voted ? (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={handleShare}
-              style={{
-                padding: '7px 14px',
-                borderRadius: 'var(--radius-pill)',
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                color: 'var(--text-secondary)',
-                fontSize: '13px',
-                fontWeight: 500,
-              }}
-            >
-             >
-              Share 🔗
-            </button>
-            <button
-              onClick={onNext}
-              style={{
-                padding: '7px 18px',
-                borderRadius: 'var(--radius-pill)',
-                border: 'none',
-                background: 'var(--orange)',
-                color: '#fff',
-                fontSize: '13px',
-                fontWeight: 600,
-              }}
-            >
-              Next
-            </button>
-          </div>
-        ) : (
+        {!voted && (
           <button
             onClick={onSkip}
             style={{
