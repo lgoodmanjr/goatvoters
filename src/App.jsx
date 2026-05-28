@@ -62,7 +62,7 @@ export default function App() {
       display: 'flex',
       flexDirection: 'column',
     }}>
-      <Header />
+      <Header catId={activeCat.id} lastVote={lastVote} />
       <CategoryNav
         activeCatIndex={activeCatIndex}
         onSwitch={switchCategory}
