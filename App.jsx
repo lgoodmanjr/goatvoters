@@ -24,9 +24,9 @@ export default function App() {
 
   const rankings = getRankings(activeCatIndex)
 
-  function handleVote(idx) {
+function handleVote(idx) {
     vote(idx)
-    setTimeout(() => nextPair(), 800)
+    setTimeout(nextPair, 600)
   }
 
   if (loading) {
