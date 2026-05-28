@@ -1,8 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-export default function Header({ onHome }) {
+export default function Header({ onHome, catId, lastVote }) {
+  const [shared, setShared] = useState(false)
+
   function handleRefresh() {
     window.location.reload()
+  }
+
+  function handleShare() {
+    const categoryUrl = `https://goatvoters.com/#${catId}`
+    const text = lastVote
+      ? `I just voted ${lastVote.winner} over ${lastVote.loser} on GOATVoters. Do you agree? 🐐`
+      : `Who's the GOAT? Come vote and see the live rankings! 🐐`
+    if (navigator.share) {
+      navigator.share({ title: 'GOATVoters', text, url: categoryUrl })
+    } else {
+      navigator.clipboard.writeText(`${text} ${categoryUrl}`)
+        .then(() => {
+          setShared(true)
+          setTimeout(() => setShared(false), 2000)
+        })
+    }
   }
 
   return (
@@ -47,7 +65,21 @@ export default function Header({ onHome }) {
         }}>VOTERS</span>
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <button
+          onClick={handleShare}
+          style={{
+            fontSize: '13px',
+            color: shared ? 'var(--orange)' : 'var(--text-secondary)',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-pill)',
+            padding: '5px 12px',
+            cursor: 'pointer',
+          }}
+        >
+          {shared ? 'Copied! ✓' : 'Share 🔗'}
+        </button>
         <button
           onClick={handleRefresh}
           style={{
@@ -58,22 +90,10 @@ export default function Header({ onHome }) {
             borderRadius: 'var(--radius-pill)',
             padding: '5px 12px',
             cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
           }}
         >
-          ↻ Refresh
+          ↻
         </button>
-        <div style={{
-          fontSize: '11px',
-          color: 'var(--text-tertiary)',
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
-          fontWeight: 500,
-        }}>
-          Who's the greatest?
-        </div>
       </div>
     </header>
   )
