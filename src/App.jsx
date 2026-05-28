@@ -17,6 +17,7 @@ export default function App() {
     lastVote,
     loading,
     voteCounts,
+    wlRecords,
     switchCategory,
     vote,
     nextPair,
@@ -82,6 +83,7 @@ export default function App() {
         <Leaderboard
           rankings={rankings}
           catLabel={activeCat.label}
+          wlRecords={wlRecords}
         />
       </div>
     </div>
