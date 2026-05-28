@@ -33,6 +33,15 @@ const rankings = getRankings(activeCatIndex)
     vote(idx)
   }
 
+  React.useEffect(() => {
+    if (selectedIndex !== null) {
+      const [a, b] = pair
+      const winner = activeCat.contestants[selectedIndex]
+      const loser = activeCat.contestants[selectedIndex === a ? b : a]
+      setLastVote({ winner: winner.name, loser: loser.name })
+    }
+  }, [selectedIndex])
+
   if (loading) {
     return (
       <div style={{
