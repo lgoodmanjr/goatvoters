@@ -87,8 +87,15 @@ useEffect(() => {
     newScores[cat.id] = eloUpdate(scores[cat.id], winnerLocalIdx, loserLocalIdx)
     setScores(newScores)
     setVoteCounts(prev => ({ ...prev, [cat.id]: prev[cat.id] + 1 }))
-    setVoted(true)
     setSelectedIndex(winnerLocalIdx)
+    setVoted(true)
+
+    setTimeout(() => {
+      setVoted(false)
+      setSelectedIndex(null)
+      setPair(getRandomPair(cat.contestants.length))
+    }, 600)
+
     try {
       const winner = cat.contestants[winnerLocalIdx]
       const loser = cat.contestants[loserLocalIdx]
