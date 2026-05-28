@@ -107,7 +107,6 @@ export const categories = [
       { id: 'r46', name: 'Meek Mill', sub: 'Maybach Music', emoji: '🦅' },
       { id: 'r47', name: 'Future', sub: 'Freebandz', emoji: '🚀' },
       { id: 'r48', name: '21 Savage', sub: 'Slaughter Gang', emoji: '🔪' },
-      { id: 'r49', name: 'OutKast', sub: 'LaFace Records', emoji: '🍑' },
       { id: 'r50', name: 'Styles P', sub: 'The LOX', emoji: '🗡️' },
     ]
   },
